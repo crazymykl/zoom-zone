@@ -1,11 +1,15 @@
 .zoom-viewport {
-  overflow: auto;
+  height: 100%;
+  width: 100%;
 }
 
 .zoom-viewport > .zoom-content {
   position: relative;
-  transform-origin: 0 0 0;
   margin: 0 auto;
   line-height: 0;
   display: inline-block;
+}
+
+.zoom-viewport > .zoom-content > img {
+  max-width: none;
 }

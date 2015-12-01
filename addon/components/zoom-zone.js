@@ -1,56 +1,81 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  headerTemplate: 'components/zoom-zone-header',
+  headerTemplate: null,
+  footerTemplate: null,
   scale: undefined,
-  scaleFactor: 1.25,
+  minScale: 0.1,
+  maxScale: 5.0,
+  increment: 0.1,
   originalWidth: undefined,
   originalHeight: undefined,
   width: undefined,
   height: undefined,
+  panX: 0,
+  panY: 0,
 
-  didInsertElement () {
-    var content;
-    this.set('$viewport', Ember.$('.zoom-viewport'));
-    content = this.get('$viewport').find('> .zoom-content');
-    this.set('$content', content);
+  didInsertElement() {
+    let content = this.$('.zoom-viewport > .zoom-content');
+    let scale = this.get('scale');
 
-    this.setProperties({
-      originalWidth: content.width(),
-      originalHeight: content.height(),
-      width: content.width(),
-      height: content.height(),
+    this._super(...arguments);
+
+    Ember.run.scheduleOnce('afterRender', () => {
+      this.set('$viewport', content.parent());
+      this.set('$content', content);
+      this.set('originalWidth', content.width());
+      this.set('originalHeight', content.height());
+
+      content.panzoom({
+        minScale: this.get('minScale'),
+        maxScale: this.get('maxScale'),
+        increment: this.get('increment'),
+        onEnd: () => this.zoomed()
+      });
+      content.on('mousedown touchstart', 'a', (e) => e.stopImmediatePropagation());
+
+      content.panzoom('pan', this.get('panX'), this.get('panY'));
+      if(scale) { this.zoom(scale); }
+      else { this.zoomFit(); }
     });
-
-    if(!this.get('scale')) { this.zoomFit(); }
   },
 
-  resize: function () {
-    var scale = this.get('scale');
-    var viewport = this.get('$viewport');
+  zoomFit() {
+    let viewport = this.get('$viewport');
+    let content = this.get('$content');
+    let ratio = Math.min(
+      viewport.width() / content.width(),
+      viewport.height() / content.height()
+    );
 
-    this.setProperties({
-      width: this.get('originalWidth') * scale,
-      height: this.get('originalHeight') * scale,
-    });
+    content.panzoom('pan',
+      (content.width() / 2) * (ratio - 1),
+      (content.height() / 2) * (ratio - 1),
+    );
+    this.zoom(ratio);
+  },
 
-    this.get('$content').css({
-      transform: `scale(${scale},${scale})`,
-      left: Math.max(0, (viewport.width() - this.get('width')) / 2),
-      top: Math.max(0, (viewport.height() - this.get('height')) / 2),
-    });
-  }.observes('scale'),
+  zoom(ratio) {
+    let content = this.get('$content');
 
-  zoomFit () {
-    var viewport = this.get('$viewport');
-    var content = this.get('$content');
+    content.panzoom('zoom', ratio);
+    this.zoomed();
+  },
 
-    this.set('scale', Math.min(viewport.width() / content.width(), viewport.height() / content.height()));
+  zoomed() {
+    let content = this.get('$content');
+    let [scale, _1, _2, _3, x, y] = content.panzoom('getMatrix');
+
+    this.set('scale', +scale);
+    this.set('width', this.get('originalWidth') * scale);
+    this.set('height', this.get('originalHeight') * scale);
+    this.set('panX', +x);
+    this.set('panY', +y);
   },
 
   actions: {
-    zoomIn:  function () { this.set('scale', this.get('scale') * this.get('scaleFactor')); },
-    zoomOut: function () { this.set('scale', this.get('scale') / this.get('scaleFactor')); },
+    zoomIn:  function () { this.zoom(false); },
+    zoomOut: function () { this.zoom(true); },
     zoomFit: function () { this.zoomFit(); }
   }
 });

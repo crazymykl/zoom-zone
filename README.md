@@ -1,6 +1,6 @@
 # Zoom-zone
 
-This README outlines the details of collaborating on this Ember addon.
+An Ember component providing a region which can be panned and zoomed.
 
 ## Installation
 

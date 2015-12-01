@@ -1,9 +1,15 @@
-{{partial headerTemplate}}
+<div class='zoom-container'>
+  {{#if headerTemplate}}
+    {{partial headerTemplate}}
+  {{/if}}
 
-<div class='zoom-viewport'>
-  <div class='zoom-content'>
-    {{yield}}
+  <div class='zoom-viewport'>
+    <div class='zoom-content'>
+      {{yield}}
+    </div>
   </div>
-</div>
 
-{{partial footerTemplate}}
+  {{#if footerTemplate}}
+    {{partial footerTemplate}}
+  {{/if}}
+</div>
