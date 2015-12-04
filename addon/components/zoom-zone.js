@@ -50,7 +50,7 @@ export default Ember.Component.extend({
 
     content.panzoom('pan',
       (content.width() / 2) * (ratio - 1),
-      (content.height() / 2) * (ratio - 1),
+      (content.height() / 2) * (ratio - 1)
     );
     this.zoom(ratio);
   },
@@ -64,7 +64,7 @@ export default Ember.Component.extend({
 
   zoomed() {
     let content = this.get('$content');
-    let [scale, _1, _2, _3, x, y] = content.panzoom('getMatrix');
+    let [scale, , , , x, y] = content.panzoom('getMatrix');
 
     this.set('scale', +scale);
     this.set('width', this.get('originalWidth') * scale);

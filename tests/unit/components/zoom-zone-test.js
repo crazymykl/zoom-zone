@@ -7,12 +7,6 @@ import {
 moduleForComponent('zoom-zone', 'ZoomZoneComponent', {
   // specify the other units that are required for this test
   // needs: ['component:foo', 'helper:bar']
-  setup: function(container) {
-    container.register(
-      'template:components/zoom-zone-header',
-      resolver.resolve('template:components/-zoom-zone-header')
-    );
-  }
 });
 
 test('it renders', function() {
