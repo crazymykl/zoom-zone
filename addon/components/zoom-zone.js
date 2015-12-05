@@ -15,8 +15,8 @@ export default Ember.Component.extend({
   panY: 0,
 
   didInsertElement() {
-    let content = this.$('.zoom-viewport > .zoom-content');
-    let scale = this.get('scale');
+    const content = this.$('.zoom-viewport > .zoom-content');
+    const scale = this.get('scale');
 
     this._super(...arguments);
 
@@ -41,9 +41,9 @@ export default Ember.Component.extend({
   },
 
   zoomFit() {
-    let viewport = this.get('$viewport');
-    let content = this.get('$content');
-    let ratio = Math.min(
+    const viewport = this.get('$viewport');
+    const content = this.get('$content');
+    const ratio = Math.min(
       viewport.width() / content.width(),
       viewport.height() / content.height()
     );
@@ -56,15 +56,15 @@ export default Ember.Component.extend({
   },
 
   zoom(ratio) {
-    let content = this.get('$content');
+    const content = this.get('$content');
 
     content.panzoom('zoom', ratio);
     this.zoomed();
   },
 
   zoomed() {
-    let content = this.get('$content');
-    let [scale, , , , x, y] = content.panzoom('getMatrix');
+    const content = this.get('$content');
+    const [scale, , , , x, y] = content.panzoom('getMatrix');
 
     this.set('scale', +scale);
     this.set('width', this.get('originalWidth') * scale);
