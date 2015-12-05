@@ -1,4 +1,4 @@
-# Zoom-zone
+# zoom-zone [![Build Status](https://travis-ci.org/crazymykl/zoom-zone.svg)](https://travis-ci.org/crazymykl/zoom-zone)
 
 An Ember component providing a region which can be panned and zoomed.
 
