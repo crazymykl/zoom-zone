@@ -6,13 +6,14 @@ export default Ember.Component.extend({
   scale: undefined,
   minScale: 0.1,
   maxScale: 5.0,
-  increment: 0.1,
+  increment: 0.25,
   originalWidth: undefined,
   originalHeight: undefined,
   width: undefined,
   height: undefined,
   panX: 0,
   panY: 0,
+  centerOnFit: true,
 
   didInsertElement() {
     const content = this.$('.zoom-viewport > .zoom-content');
@@ -43,15 +44,22 @@ export default Ember.Component.extend({
   zoomFit() {
     const viewport = this.get('$viewport');
     const content = this.get('$content');
-    const ratio = Math.min(
+    const [ratioX, ratioY] = [
       viewport.width() / content.width(),
       viewport.height() / content.height()
-    );
-
-    content.panzoom('pan',
+    ];
+    const ratio = Math.min(ratioX, ratioY);
+    let [dx, dy] = [
       (content.width() / 2) * (ratio - 1),
       (content.height() / 2) * (ratio - 1)
-    );
+    ];
+
+    if(this.get('centerOnFit')) {
+      if(ratioX > ratioY) { dx = (viewport.width() - content.width()) / 2; }
+      if(ratioX < ratioY) { dy = (viewport.height() - content.height()) / 2; }
+    }
+
+    content.panzoom('pan', dx, dy);
     this.zoom(ratio);
   },
 

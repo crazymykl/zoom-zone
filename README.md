@@ -20,6 +20,7 @@ The following properties are supported read/write:
 * scale: The zoom level (Note that zooming to fit will adjust the panning as well) [default: zoom-to-fit]
 * panX: The _x_ offset of the content in the viewport [default: 0]
 * panY: The _y_ offset of the content in the viewport [default: 0]
+* centerOnFit: If set, center the content in the viewport when zooming to fit [default: _true_]
 
 Additionally, these properties are available for reading:
 
@@ -32,7 +33,7 @@ These actions are available:
 
 * zoomIn: Increases the `scale` by the `increment`
 * zoomOut: Decreases the `scale` by the `increment`
-* zoomFit: Sets the scale to the largest value which does fits in both dimensions. Pans such that the entire content is within the viewport
+* zoomFit: Sets the scale to the largest value which does fits in both dimensions. Pans such that the entire content is within the viewport (either centered or aligned to the top left based on the value of `centerOnFit`)
 
 ---
 

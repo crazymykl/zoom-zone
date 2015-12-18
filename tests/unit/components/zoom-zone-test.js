@@ -16,7 +16,7 @@ test('it scales to fit by default', function (assert) {
   {{/zoom-zone}}`);
 
   assert.equal(this.get("scale"), 2);
-  assert.equal(this.get("panX"), 100);
+  assert.equal(this.get("panX"), 200);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -45,8 +45,8 @@ test('it zooms in via button', function (assert) {
 
   Ember.run(() => this.$('.zoom-in').click());
 
-  assert.equal(this.get("scale"), 2.1);
-  assert.equal(this.get("panX"), 100);
+  assert.equal(this.get("scale"), 2.25);
+  assert.equal(this.get("panX"), 200);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -59,8 +59,8 @@ test('it zooms out via button', function (assert) {
 
   Ember.run(() => this.$('.zoom-out').click());
 
-  assert.equal(this.get("scale"), 1.9);
-  assert.equal(this.get("panX"), 100);
+  assert.equal(this.get("scale"), 1.75);
+  assert.equal(this.get("panX"), 200);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -78,7 +78,7 @@ test('it zooms to fit via button', function (assert) {
   Ember.run(() => this.$('.zoom-fit').click());
 
   assert.equal(this.get("scale"), 2.0);
-  assert.equal(this.get("panX"), 100);
+  assert.equal(this.get("panX"), 200);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -105,7 +105,7 @@ test('it pans with the mouse', function (assert) {
   });
 
   assert.equal(this.get("scale"), 2.0);
-  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panX"), 300);
   assert.equal(this.get("panY"), 300);
 });
 
@@ -137,7 +137,7 @@ test('it pans with touches', function (assert) {
   });
 
   assert.equal(this.get("scale"), 2.0);
-  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panX"), 300);
   assert.equal(this.get("panY"), 300);
 });
 
@@ -165,15 +165,15 @@ test('it pinch-zooms', function (assert) {
       pageY: 0,
       touches: [
         {clientX: left, clientY: top},
-        {clientX: left + 40, clientY: top + 40},
+        {clientX: left + 100, clientY: top},
       ],
     }));
 
     this.$('.zoom-content').trigger('touchend');
   });
 
-  assert.equal(+this.get("scale").toFixed(3), 1.915);
+  assert.equal(+this.get("scale").toFixed(3), 1.896);
   // These two are imprecise to account for rounding differences in rendering engines
-  assert.equal(+this.get("panX").toFixed(1), 62.4);
-  assert.equal(+this.get("panY").toFixed(1), 108.2);
+  assert.equal(Math.round(+this.get("panX")), 192);
+  assert.equal(Math.round(+this.get("panY")), 85);
 });
