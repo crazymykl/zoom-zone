@@ -82,6 +82,56 @@ test('it zooms to fit via button', function (assert) {
   assert.equal(this.get("panY"), 150);
 });
 
+test('respects minimum scale', function (assert) {
+  assert.expect(1);
+
+  this.set("scale", 4.0);
+  this.set("minScale", 5.0);
+
+  this.render(hbs`{{#zoom-zone scale=scale minScale=minScale headerTemplate='components/zoom-zone-header'}}
+    <div style='height: 300px; width: 200px; background-color: red'></div>
+  {{/zoom-zone}}`);
+
+  Ember.run(() => this.$('.zoom-out').click());
+
+  assert.equal(this.get("scale"), 5.0);
+});
+
+test('respects maximum scale', function (assert) {
+  assert.expect(1);
+
+  this.set("scale", 6.0);
+  this.set("maxScale", 5.0);
+
+  this.render(hbs`{{#zoom-zone scale=scale maxScale=maxScale headerTemplate='components/zoom-zone-header'}}
+    <div style='height: 300px; width: 200px; background-color: red'></div>
+  {{/zoom-zone}}`);
+
+  Ember.run(() => this.$('.zoom-in').click());
+
+  assert.equal(this.get("scale"), 5.0);
+});
+
+test('respects increment', function (assert) {
+  assert.expect(2);
+
+  this.set("scale", 1.0);
+
+  this.render(hbs`{{#zoom-zone scale=scale increment=increment headerTemplate='components/zoom-zone-header'}}
+    <div style='height: 300px; width: 200px; background-color: red'></div>
+  {{/zoom-zone}}`);
+
+  this.set("increment", 1.0);
+  Ember.run(() => this.$('.zoom-in').click());
+
+  assert.equal(this.get("scale"), 2.0);
+
+  this.set("increment", 0.5);
+  Ember.run(() => this.$('.zoom-out').click());
+  assert.equal(this.get("scale"), 1.5);
+
+});
+
 test('it pans with the mouse', function (assert) {
   assert.expect(3);
 

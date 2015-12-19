@@ -65,6 +65,7 @@ export default Ember.Component.extend({
 
   zoom(ratio) {
     const content = this.get('$content');
+    content.panzoom('option', 'increment', this.get('increment'));
 
     content.panzoom('zoom', ratio);
     this.zoomed();
@@ -82,8 +83,9 @@ export default Ember.Component.extend({
   },
 
   actions: {
-    zoomIn:  function () { this.zoom(false); },
-    zoomOut: function () { this.zoom(true); },
-    zoomFit: function () { this.zoomFit(); }
+    zoom(scale=1) { this.zoom(scale); },
+    zoomIn() { this.zoom(false); },
+    zoomOut() { this.zoom(true); },
+    zoomFit() { this.zoomFit(); }
   }
 });
