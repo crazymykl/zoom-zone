@@ -1,8 +1,16 @@
 import Ember from 'ember';
 
-export default Ember.Component.extend({
+const {
+  Component,
+  run,
+  computed,
+  $
+} = Ember;
+
+export default Component.extend({
   headerTemplate: null,
   footerTemplate: null,
+  activeViewport: true,
   scale: undefined,
   minScale: 0.1,
   maxScale: 5.0,
@@ -14,32 +22,42 @@ export default Ember.Component.extend({
   panX: 0,
   panY: 0,
   centerOnFit: true,
+  delay: 250,
 
   didInsertElement() {
-    const content = this.$('.zoom-viewport > .zoom-content');
+    const viewport = this.$('.zoom-viewport');
+    const content = viewport.children('.zoom-content');
     const scale = this.get('scale');
+    const start = (e) => {
+      if(!normalizeEvent(e).touches && e.which !== 1) { return; }
+
+      startPinch(e);
+      e.preventDefault();
+    };
 
     this._super(...arguments);
 
-    Ember.run.scheduleOnce('afterRender', () => {
+    run.scheduleOnce('afterRender', () => {
       this.set('$viewport', content.parent());
       this.set('$content', content);
       this.set('originalWidth', content.width());
       this.set('originalHeight', content.height());
 
-      content.panzoom({
-        minScale: this.get('minScale'),
-        maxScale: this.get('maxScale'),
-        increment: this.get('increment'),
-        onEnd: () => this.zoomed()
+      viewport.on('touchstart mousedown', {zone: this}, (e) => {
+        if(this.get('activeViewport')) { start(e); }
       });
-      content.on('mousedown touchstart', 'a', (e) => e.stopImmediatePropagation());
 
-      content.panzoom('pan', this.get('panX'), this.get('panY'));
-      if(scale) { this.zoom(scale); }
+      content.on('touchstart mousedown', {zone: this}, start);
+
+      if(scale) { this.zoomTo(scale); }
       else { this.zoomFit(); }
     });
   },
+
+  matrix: computed('panX', 'panY', 'scale', function () {
+    const [scale, x, y] = [this.get('scale'), this.get('panX'), this.get('panY')];
+    return `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
+  }),
 
   zoomFit() {
     const viewport = this.get('$viewport');
@@ -59,33 +77,104 @@ export default Ember.Component.extend({
       if(ratioX < ratioY) { dy = (viewport.height() - content.height()) / 2; }
     }
 
-    content.panzoom('pan', dx, dy);
-    this.zoom(ratio);
+    this.set('panX', dx);
+    this.set('panY', dy);
+    this.zoomTo(ratio);
   },
 
-  zoom(ratio) {
+  zoomTo(ratio) {
     const content = this.get('$content');
-    content.panzoom('option', 'increment', this.get('increment'));
+    const [min, max] = [this.get('minScale'), this.get('maxScale')];
 
-    content.panzoom('zoom', ratio);
-    this.zoomed();
+    if(ratio > max) { ratio = max; }
+    else if(ratio < min) { ratio = min; }
+
+    this.set('scale', ratio);
+    this.set('width', this.get('originalWidth') * ratio);
+    this.set('height', this.get('originalHeight') * ratio);
+
+    content.css({transform: this.get('matrix')});
   },
 
-  zoomed() {
+  zoomBy(delta) {
     const content = this.get('$content');
-    const [scale, , , , x, y] = content.panzoom('getMatrix');
+    const delay = this.get('delay');
 
-    this.set('scale', +scale);
-    this.set('width', this.get('originalWidth') * scale);
-    this.set('height', this.get('originalHeight') * scale);
-    this.set('panX', +x);
-    this.set('panY', +y);
+    if(delay && delta) {
+      content.css({transition: `${delay}ms ease`});
+      setTimeout(() => content.css({transition: ''}), delay);
+    }
+    this.zoomTo(this.get('scale') + delta);
   },
 
   actions: {
-    zoom(scale=1) { this.zoom(scale); },
-    zoomIn() { this.zoom(false); },
-    zoomOut() { this.zoom(true); },
+    zoomTo(scale=1) { this.zoomTo(scale); },
+    zoomIn() { this.zoomBy(this.get('increment')); },
+    zoomOut() { this.zoomBy(-this.get('increment')); },
     zoomFit() { this.zoomFit(); }
   }
 });
+
+function startPinch(event) {
+  const {zone} = event.data;
+  const touch0 = normalizeTouches(event);
+  const [scale0, x0, y0] = [
+    zone.get('scale'),
+    zone.get('panX') - touch0.x,
+    zone.get('panY') - touch0.y
+  ];
+
+  function move(e) {
+    const {x, y, distance} = normalizeTouches(normalizeEvent(e));
+
+    zone.set('scale', scale0 * distance / touch0.distance);
+    zone.set('panX', x0 + x);
+    zone.set('panY', y0 + y);
+    zone.zoomBy(0);
+  }
+
+  $(document).on('mousemove touchmove', (e) =>
+    run.debounce(zone, move, e, 7, true)
+  );
+
+  $(document).one('mouseup touchend', () =>
+    $(document).off('mousemove touchmove')
+  );
+}
+
+function normalizeEvent(event) {
+  if(event.originalEvent) {
+    event.touches = Array.prototype.slice.call(event.originalEvent.touches || []);
+    event.pageX = event.originalEvent.pageX;
+    event.pageY = event.originalEvent.pageY;
+  }
+  return event;
+}
+
+function normalizeTouches(event) {
+  const {touches} = event;
+  if((touches || []).length < 2) {
+    return {
+      x: event.pageX,
+      y: event.pageY,
+      distance: 1
+    };
+  }
+  const [first, second] = touches.slice(0, 2);
+
+  return {
+    x: (first.pageX + second.pageX) / 2,
+    y: (first.pageY + second.pageY) / 2,
+    distance: distance(
+      [first.clientX, first.clientY],
+      [second.clientX, second.clientY]
+    ),
+  };
+}
+
+function distance(p0, p1) {
+  return Math.sqrt(
+     Math.pow(Math.abs(p0[0] - p1[0]), 2) +
+     Math.pow(Math.abs(p0[1] - p1[1]), 2)
+  );
+}

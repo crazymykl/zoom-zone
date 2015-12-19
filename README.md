@@ -14,6 +14,7 @@ The following properties are supported read/write:
 
 * headerTemplate: Sets a partial to render within the component (so these properties are available), but before the viewport. [default: _null_]
 * footerTemplate: As above, but after the viewport. [default: _null_]
+* activeViewport: If set, the viewport will be able to pan and zoom as well [default: _true_]
 * minScale: The minimum zoom level [default: 0.1]
 * maxScale: The maximum zoom level [default: 5.0]
 * increment: The increment using the actions (see below) zooms by [default: 0.1]
@@ -21,6 +22,7 @@ The following properties are supported read/write:
 * panX: The _x_ offset of the content in the viewport [default: 0]
 * panY: The _y_ offset of the content in the viewport [default: 0]
 * centerOnFit: If set, center the content in the viewport when zooming to fit [default: _true_]
+* delay: A duration (in ms) to animate zooming caused by the `zoomIn` and `zoomOut` events [default: 250ms]
 
 Additionally, these properties are available for reading:
 
@@ -31,6 +33,7 @@ Additionally, these properties are available for reading:
 
 These actions are available:
 
+* zoomTo(_scale_): Sets the `scale` to the passed argument
 * zoomIn: Increases the `scale` by the `increment`
 * zoomOut: Decreases the `scale` by the `increment`
 * zoomFit: Sets the scale to the largest value which does fits in both dimensions. Pans such that the entire content is within the viewport (either centered or aligned to the top left based on the value of `centerOnFit`)

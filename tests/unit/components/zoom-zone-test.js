@@ -194,36 +194,51 @@ test('it pans with touches', function (assert) {
 test('it pinch-zooms', function (assert) {
   assert.expect(3);
 
+  this.set("scale", 2);
+  this.set("panX", 200);
+  this.set("panY", 150);
+
   this.render(hbs`{{#zoom-zone scale=scale panX=panX panY=panY}}
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
   Ember.run(() => {
-    const {left, top} = this.$('.zoom-content')[0].getBoundingClientRect();
-
     this.$('.zoom-content').trigger(new $.Event('touchstart', {
-      pageX: 0,
-      pageY: 0,
       touches: [
-        {clientX: left, clientY: top},
-        {clientX: left + 100, clientY: top + 100},
+        {
+          pageX: 0,
+          pageY: 0,
+          clientX: 0,
+          clientY: 0
+        },{
+          pageX: 100,
+          pageY: 100,
+          clientX: 100,
+          clientY: 100
+        },
       ],
     }));
 
     this.$('.zoom-content').trigger(new $.Event('touchmove', {
-      pageX: 0,
-      pageY: 0,
       touches: [
-        {clientX: left, clientY: top},
-        {clientX: left + 100, clientY: top},
+        {
+          pageX: 50,
+          pageY: 0,
+          clientX: 50,
+          clientY: 0
+        },{
+          pageX: 100,
+          pageY: 50,
+          clientX: 100,
+          clientY: 50
+        },
       ],
     }));
 
     this.$('.zoom-content').trigger('touchend');
   });
 
-  assert.equal(+this.get("scale").toFixed(3), 1.896);
-  // These two are imprecise to account for rounding differences in rendering engines
-  assert.equal(Math.round(+this.get("panX")), 192);
-  assert.equal(Math.round(+this.get("panY")), 85);
+  assert.equal(this.get("scale"), 1);
+  assert.equal(this.get("panX"), 225);
+  assert.equal(this.get("panY"), 125);
 });

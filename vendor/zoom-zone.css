@@ -1,6 +1,12 @@
 .zoom-viewport {
   height: 100%;
   width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.zoom-viewport.active {
+  cursor: move;
 }
 
 .zoom-viewport > .zoom-content {
@@ -8,6 +14,13 @@
   margin: 0 auto;
   line-height: 0;
   display: inline-block;
+  backface-visibility: hidden;
+  transform-origin: 50% 50% 0;
+  cursor: move;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .zoom-viewport > .zoom-content > img {

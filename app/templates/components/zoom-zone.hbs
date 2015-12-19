@@ -3,7 +3,7 @@
     {{partial headerTemplate}}
   {{/if}}
 
-  <div class='zoom-viewport'>
+  <div class='zoom-viewport {{if activeViewport "active"}}'>
     <div class='zoom-content'>
       {{yield}}
     </div>
