@@ -29,7 +29,8 @@ export default Component.extend({
     const content = viewport.children('.zoom-content');
     const scale = this.get('scale');
     const start = (e) => {
-      if(normalizeEvent(e).touches || e.which !== 1) { startPinch(e); }
+      if(normalizeEvent(e).touches || e.which === 1) { startPinch(e); }
+      if(e.type === 'mousedown') { e.preventDefault(); }
     };
 
     this._super(...arguments);
