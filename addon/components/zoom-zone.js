@@ -98,7 +98,7 @@ export default Component.extend({
 
   zoomBy(delta) {
     const content = this.get('$content');
-    const delay = this.get('delay');
+    const delay = +this.get('delay');
 
     if(delay && delta) {
       content.css({transition: `${delay}ms ease`});
@@ -125,20 +125,20 @@ function startPinch(event) {
   ];
 
   function move(e) {
-    const {x, y, distance} = normalizeTouches(normalizeEvent(e));
+    run.debounce(zone, () => {
+      const {x, y, distance} = normalizeTouches(normalizeEvent(e));
 
-    zone.set('scale', scale0 * distance / touch0.distance);
-    zone.set('panX', x0 + x);
-    zone.set('panY', y0 + y);
-    zone.zoomBy(0);
+      zone.set('scale', scale0 * distance / touch0.distance);
+      zone.set('panX', x0 + x);
+      zone.set('panY', y0 + y);
+      zone.zoomBy(0);
+    }, 7, true);
   }
 
-  $(document).on('mousemove touchmove', (e) =>
-    run.debounce(zone, move, e, 7, true)
-  );
+  $(document).on('mousemove touchmove', move);
 
   $(document).one('mouseup touchend', () =>
-    $(document).off('mousemove touchmove')
+    $(document).off('mousemove touchmove', move)
   );
 }
 
