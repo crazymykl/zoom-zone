@@ -29,10 +29,7 @@ export default Component.extend({
     const content = viewport.children('.zoom-content');
     const scale = this.get('scale');
     const start = (e) => {
-      if(!normalizeEvent(e).touches && e.which !== 1) { return; }
-
-      startPinch(e);
-      e.preventDefault();
+      if(normalizeEvent(e).touches || e.which !== 1) { startPinch(e); }
     };
 
     this._super(...arguments);
@@ -125,6 +122,7 @@ function startPinch(event) {
   ];
 
   function move(e) {
+    e.preventDefault();
     run.debounce(zone, () => {
       const {x, y, distance} = normalizeTouches(normalizeEvent(e));
 
