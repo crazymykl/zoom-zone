@@ -52,6 +52,16 @@ export default Component.extend({
     });
   },
 
+  willDestroyElement() {
+    const viewport = this.get('$viewport');
+    const content = this.get('$content');
+
+    viewport.off();
+    content.off();
+
+    this._super(...arguments);
+  },
+
   matrix: computed('panX', 'panY', 'scale', function () {
     const [scale, x, y] = [this.get('scale'), this.get('panX'), this.get('panY')];
     return `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
