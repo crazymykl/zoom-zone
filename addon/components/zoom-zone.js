@@ -4,6 +4,7 @@ const {
   Component,
   run,
   computed,
+  observer,
   $
 } = Ember;
 
@@ -65,6 +66,11 @@ export default Component.extend({
   matrix: computed('panX', 'panY', 'scale', function () {
     const [scale, x, y] = [this.get('scale'), this.get('panX'), this.get('panY')];
     return `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
+  }),
+
+  matrixCss: observer('matrix', function () {
+    const content = this.get('$content');
+    content.css({transform: this.get('matrix')});
   }),
 
   zoomFit() {
