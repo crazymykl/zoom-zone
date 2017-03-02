@@ -68,7 +68,7 @@ export default Component.extend({
     return `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
   }),
 
-  matrixCss: observer('matrix', '$content', function () {
+  matrixCss: observer('matrix', function () {
     const content = this.get('$content');
     content.css({transform: this.get('matrix')});
   }),
