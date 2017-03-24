@@ -3,7 +3,6 @@ import Ember from 'ember';
 const {
   Component,
   run,
-  computed,
   observer,
   $
 } = Ember;
@@ -63,16 +62,8 @@ export default Component.extend({
     this._super(...arguments);
   },
 
-  matrix: computed('panX', 'panY', 'scale', function () {
-    const [scale, x, y] = [this.get('scale'), this.get('panX'), this.get('panY')];
-    return `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;
-  }),
-
-  matrixCss: observer('matrix', function () {
-    run.debounce(this, () => {
-      this.get('$content').css({transform: this.get('matrix')});
-    }, 7, true);
-
+  matrix: observer('panX', 'panY', 'scale', function () {
+    run.throttle(this, applyMatrix, 16, false);
   }),
 
   zoomFit() {
@@ -99,7 +90,6 @@ export default Component.extend({
   },
 
   zoomTo(ratio) {
-    const content = this.get('$content');
     const [min, max] = [this.get('minScale'), this.get('maxScale')];
 
     if(ratio > max) { ratio = max; }
@@ -110,8 +100,6 @@ export default Component.extend({
       width: this.get('originalWidth') * ratio,
       height: this.get('originalHeight') * ratio,
     });
-
-    content.css({transform: this.get('matrix')});
   },
 
   zoomBy(delta) {
@@ -206,4 +194,9 @@ function distance(p0, p1) {
      Math.pow(Math.abs(p0[0] - p1[0]), 2) +
      Math.pow(Math.abs(p0[1] - p1[1]), 2)
   );
+}
+
+function applyMatrix() {
+  const {scale, panX, panY, $content} = this.getProperties('scale', 'panX', 'panY', '$content');
+  $content.css({transform: `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`});
 }
