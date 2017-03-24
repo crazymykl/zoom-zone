@@ -17,6 +17,8 @@ This addon provides a component called `zoom-zone`. This component presents a re
 {{/zoom-zone}}
 ```
 
+The component will yield itself as the first argument to its block if one is specified.
+
 The following properties are supported in the `zoom-zone` component
 
 | Property         | Read | Write | Default            | Purpose

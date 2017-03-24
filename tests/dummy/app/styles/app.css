@@ -12,6 +12,12 @@ html, body {
 .zoom-content {
 }
 
+.zoom-content button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
 .splorch {
   width: 10px;
   height: 10px;

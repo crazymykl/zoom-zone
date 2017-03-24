@@ -69,8 +69,10 @@ export default Component.extend({
   }),
 
   matrixCss: observer('matrix', function () {
-    const content = this.get('$content');
-    content.css({transform: this.get('matrix')});
+    run.debounce(this, () => {
+      this.get('$content').css({transform: this.get('matrix')});
+    }, 7, true);
+
   }),
 
   zoomFit() {
@@ -103,9 +105,11 @@ export default Component.extend({
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
 
-    this.set('scale', ratio);
-    this.set('width', this.get('originalWidth') * ratio);
-    this.set('height', this.get('originalHeight') * ratio);
+    this.setProperties({
+      scale: ratio,
+      width: this.get('originalWidth') * ratio,
+      height: this.get('originalHeight') * ratio,
+    });
 
     content.css({transform: this.get('matrix')});
   },
@@ -131,6 +135,7 @@ export default Component.extend({
 
 function startPinch(event) {
   const {zone} = event.data;
+  const [min, max] = [zone.get('minScale'), zone.get('maxScale')];
   const touch0 = normalizeTouches(event);
   const [scale0, x0, y0] = [
     zone.get('scale'),
@@ -140,14 +145,17 @@ function startPinch(event) {
 
   function move(e) {
     e.preventDefault();
-    run.debounce(zone, () => {
-      const {x, y, distance} = normalizeTouches(normalizeEvent(e));
+    const {x, y, distance} = normalizeTouches(normalizeEvent(e));
+    let ratio = scale0 * distance / touch0.distance;
 
-      zone.set('scale', scale0 * distance / touch0.distance);
-      zone.set('panX', x0 + x);
-      zone.set('panY', y0 + y);
-      zone.zoomBy(0);
-    }, 7, true);
+    if(ratio > max) { ratio = max; }
+    else if(ratio < min) { ratio = min; }
+
+    zone.setProperties({
+      scale: ratio,
+      panX: x0 + x,
+      panY: y0 + y,
+    });
   }
 
   $(document).on('mousemove touchmove', move);
@@ -159,9 +167,15 @@ function startPinch(event) {
 
 function normalizeEvent(event) {
   if(event.originalEvent) {
-    event.touches = Array.prototype.slice.call(event.originalEvent.touches || []);
-    event.pageX = event.originalEvent.pageX;
-    event.pageY = event.originalEvent.pageY;
+    const touches = Array.prototype.slice.call(event.originalEvent.touches || []);
+    event.touches = touches;
+    if(touches[0]) {
+      event.pageX = touches[0].pageX;
+      event.pageY = touches[0].pageY;
+    } else {
+      event.pageX = event.originalEvent.pageX;
+      event.pageY = event.originalEvent.pageY;
+    }
   }
   return event;
 }
