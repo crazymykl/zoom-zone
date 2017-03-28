@@ -1,6 +1,6 @@
 {
   "name": "zoom-zone",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "directories": {
     "doc": "doc",
     "test": "tests"
