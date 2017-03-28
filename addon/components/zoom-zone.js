@@ -3,7 +3,6 @@ import Ember from 'ember';
 const {
   Component,
   run,
-  computed,
   $
 } = Ember;
 
@@ -49,6 +48,8 @@ export default Component.extend({
 
       if(scale) { this.zoomTo(scale); }
       else { this.zoomFit(); }
+
+      this.didRender();
     });
   },
 
@@ -62,13 +63,9 @@ export default Component.extend({
     this._super(...arguments);
   },
 
-  matrix: computed('panX', 'panY', 'scale', function () {
-    const {scale, panX, panY} = this.getProperties('scale', 'panX', 'panY');
-    return `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`;
-  }),
-
   didRender() {
-    const {$content, matrix} = this.getProperties('$content', 'matrix');
+    const {$content, scale, panX, panY} = this.getProperties('$content', 'scale', 'panX', 'panY');
+    const matrix = `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`;
     if($content) { $content.css({transform: matrix}); }
   },
 
