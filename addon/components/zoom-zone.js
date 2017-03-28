@@ -3,7 +3,7 @@ import Ember from 'ember';
 const {
   Component,
   run,
-  observer,
+  computed,
   $
 } = Ember;
 
@@ -62,9 +62,15 @@ export default Component.extend({
     this._super(...arguments);
   },
 
-  matrix: observer('panX', 'panY', 'scale', function () {
-    run.throttle(this, applyMatrix, 16, false);
+  matrix: computed('panX', 'panY', 'scale', function () {
+    const {scale, panX, panY} = this.getProperties('scale', 'panX', 'panY');
+    return `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`;
   }),
+
+  didRender() {
+    const {$content, matrix} = this.getProperties('$content', 'matrix');
+    if($content) { $content.css({transform: matrix}); }
+  },
 
   zoomFit() {
     const viewport = this.get('$viewport');
@@ -194,9 +200,4 @@ function distance(p0, p1) {
      Math.pow(Math.abs(p0[0] - p1[0]), 2) +
      Math.pow(Math.abs(p0[1] - p1[1]), 2)
   );
-}
-
-function applyMatrix() {
-  const {scale, panX, panY, $content} = this.getProperties('scale', 'panX', 'panY', '$content');
-  $content.css({transform: `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`});
 }
