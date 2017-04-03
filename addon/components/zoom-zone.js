@@ -149,11 +149,11 @@ function startPinch(event) {
     });
   }
 
-  $(document).on('mousemove touchmove', move);
-
+  $(document).off('mousemove.zoom-zone touchmove.zoom-zone');
   $(document).one('mouseup touchend', () =>
-    $(document).off('mousemove touchmove', move)
+    $(document).off('mousemove.zoom-zone touchmove.zoom-zone')
   );
+  $(document).on('mousemove.zoom-zone touchmove.zoom-zone', move);
 }
 
 function normalizeEvent(event) {
