@@ -95,63 +95,28 @@ export default Component.extend({
   zoomTo(ratio) {
     const [min, max] = [this.get('minScale'), this.get('maxScale')];
 
-    var previousScale = this.get('scale') || 1
+    const previousScale = this.get('scale') || 1
 
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
 
-    var panX, panY, magicSauce, viewportHeight, viewportWidth, x, y, zoomViewport, originalWidth, originalHeight;
+    const scaleRatio = ratio/previousScale
 
-    var scaleChange = ratio-previousScale
-    var scaleRatio = ratio/previousScale
+    const content = this.get('$content');
+    const panX = this.get('panX');
+    const panY = this.get('panY');
 
-    zoomViewport = Ember.$('.zoom-viewport');
-    var content = this.get('$content');
-    viewportWidth = zoomViewport.width();
-    viewportHeight = zoomViewport.height();
-    panX = this.get('panX');
-    panY = this.get('panY');
-    originalWidth = this.get('originalWidth')
-    originalHeight = this.get('originalHeight')
-    var height = this.get('height') || 0
-    var width = this.get('width') || 0
+    const magicSauce = (scaleRatio - 1) / 2;
 
-    // panX - viewportWidth/2
-    // panX
-    // panY
+    const x = panX * scaleRatio - content.width() * magicSauce;
+    const y = panY * scaleRatio - content.height() * magicSauce;
 
-    // centerViewX = (viewportWidth / 2) - (width * ratio / 2);
-    // centerViewY = (viewportHeight / 2) - (height * ratio / 2);
-    //
-    // x = (xPosition * scale) //- (fixtureWidth * magicSauce) - centerViewX
-    // y = (yPosition * scale) //- (fixtureHeight * magicSauce) - centerViewY
-    // has to be x*(some scale factor) + content.width()*magicSauce - someValue
-    // scale = 2.5  x = 225, y = 150
-    // scale = 2.75 x = 487, y = 325 should be x= 262, y = 175
-    magicSauce = (ratio - 1) / 2;
-    if (scaleChange > 0) {
-      magicSauce = (ratio - 1) / 2;
-      x = panX*scaleRatio //+ (content.width() * magicSauce) //+ (viewportWidth*ratio/2);
-      y = panY*scaleRatio //+ (content.height() * magicSauce) //+ (viewportHeight*ratio/2);
-    } else if (scaleChange < 0) {
-      magicSauce = (previousScale - 1) / 2;
-      x = panX*scaleRatio //- (content.width() * magicSauce) //+ (viewportWidth*ratio/2);
-      y = panY*scaleRatio //- (content.height() * magicSauce) //+ (viewportHeight*ratio/2);
-    } else {
-      x = panX
-      y = panY
-    }
-    // debugger
-    // (panX*scaleChange)
-    // -(panY*scaleChange) -
-    // debugger
     this.setProperties({
       scale: ratio,
       width: this.get('originalWidth') * ratio,
-      height: this.get('originalHeight') * ratio
-      ,
+      height: this.get('originalHeight') * ratio,
       panX: x,
-      panY: y
+      panY: y,
     });
   },
 
@@ -183,6 +148,7 @@ function startPinch(event) {
     zone.get('panX') - touch0.x,
     zone.get('panY') - touch0.y
   ];
+  const content = zone.get('$content');
 
   function move(e) {
     e.preventDefault();
@@ -192,10 +158,15 @@ function startPinch(event) {
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
 
+    const scaleRatio = ratio / scale0;
+    const magicSauce = (scaleRatio - 1) / 2;
+    const newX = (x0 + x) * scaleRatio - content.width() * magicSauce;
+    const newY = (y0 + y) * scaleRatio - content.height() * magicSauce;
+
     zone.setProperties({
       scale: ratio,
-      panX: x0 + x,
-      panY: y0 + y,
+      panX: newX,
+      panY: newY,
     });
   }
 
