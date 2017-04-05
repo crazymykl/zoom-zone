@@ -89,18 +89,19 @@ export default Component.extend({
 
     this.set('panX', dx);
     this.set('panY', dy);
+    this.set('scale', ratio);
     this.zoomTo(ratio);
   },
 
   zoomTo(ratio) {
     const [min, max] = [this.get('minScale'), this.get('maxScale')];
 
-    const previousScale = this.get('scale') || 1
+    const previousScale = this.get('scale') || 1;
 
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
 
-    const scaleRatio = ratio/previousScale
+    const scaleRatio = ratio/previousScale;
 
     const content = this.get('$content');
     const panX = this.get('panX');
