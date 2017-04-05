@@ -89,19 +89,35 @@ export default Component.extend({
 
     this.set('panX', dx);
     this.set('panY', dy);
+    this.set('scale', ratio);
     this.zoomTo(ratio);
   },
 
   zoomTo(ratio) {
     const [min, max] = [this.get('minScale'), this.get('maxScale')];
 
+    const previousScale = this.get('scale') || 1;
+
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
+
+    const scaleRatio = ratio/previousScale;
+
+    const content = this.get('$content');
+    const panX = this.get('panX');
+    const panY = this.get('panY');
+
+    const magicSauce = (scaleRatio - 1) / 2;
+
+    const x = panX * scaleRatio - content.width() * magicSauce;
+    const y = panY * scaleRatio - content.height() * magicSauce;
 
     this.setProperties({
       scale: ratio,
       width: this.get('originalWidth') * ratio,
       height: this.get('originalHeight') * ratio,
+      panX: x,
+      panY: y,
     });
   },
 
@@ -133,6 +149,7 @@ function startPinch(event) {
     zone.get('panX') - touch0.x,
     zone.get('panY') - touch0.y
   ];
+  const content = zone.get('$content');
 
   function move(e) {
     e.preventDefault();
@@ -142,10 +159,15 @@ function startPinch(event) {
     if(ratio > max) { ratio = max; }
     else if(ratio < min) { ratio = min; }
 
+    const scaleRatio = ratio / scale0;
+    const magicSauce = (scaleRatio - 1) / 2;
+    const newX = (x0 + x) * scaleRatio - content.width() * magicSauce;
+    const newY = (y0 + y) * scaleRatio - content.height() * magicSauce;
+
     zone.setProperties({
       scale: ratio,
-      panX: x0 + x,
-      panY: y0 + y,
+      panX: newX,
+      panY: newY,
     });
   }
 

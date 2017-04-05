@@ -46,7 +46,7 @@ test('it zooms in via button', function (assert) {
   Ember.run(() => this.$('.zoom-in').click());
 
   assert.equal(this.get("scale"), 2.25);
-  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panX"), 212.5);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -60,7 +60,7 @@ test('it zooms out via button', function (assert) {
   Ember.run(() => this.$('.zoom-out').click());
 
   assert.equal(this.get("scale"), 1.75);
-  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panX"), 187.5);
   assert.equal(this.get("panY"), 150);
 });
 
@@ -239,6 +239,6 @@ test('it pinch-zooms', function (assert) {
   });
 
   assert.equal(this.get("scale"), 1);
-  assert.equal(this.get("panX"), 225);
-  assert.equal(this.get("panY"), 125);
+  assert.equal(this.get("panX"), 162.5);
+  assert.equal(this.get("panY"), 137.5);
 });
