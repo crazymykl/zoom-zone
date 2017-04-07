@@ -110,8 +110,8 @@ export default Component.extend({
 
     const magicSauce = (scaleRatio - 1) / 2;
 
-    const x = panX * scaleRatio - (viewport.width() - content.width())*magicSauce;
-    const y = panY * scaleRatio - (viewport.height() - content.height())*magicSauce;
+    const x = panX * scaleRatio - (viewport.width() - content.width()) * magicSauce;
+    const y = panY * scaleRatio - (viewport.height() - content.height()) * magicSauce;
 
     this.setProperties({
       scale: ratio,
@@ -152,6 +152,8 @@ function startPinch(event) {
   ];
   const content = zone.get('$content');
   const viewport = zone.get('$viewport');
+  const originalWidth = zone.get('originalWidth');
+  const originalHeight = zone.get('originalHeight');
 
   function move(e) {
     e.preventDefault();
@@ -170,6 +172,8 @@ function startPinch(event) {
       scale: ratio,
       panX: newX,
       panY: newY,
+      width: originalWidth * ratio,
+      height: originalHeight * ratio,
     });
   }
 
