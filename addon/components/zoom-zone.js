@@ -104,13 +104,14 @@ export default Component.extend({
     const scaleRatio = ratio/previousScale;
 
     const content = this.get('$content');
+    const viewport = this.get('$viewport');
     const panX = this.get('panX');
     const panY = this.get('panY');
 
     const magicSauce = (scaleRatio - 1) / 2;
 
-    const x = panX * scaleRatio - content.width() * magicSauce;
-    const y = panY * scaleRatio - content.height() * magicSauce;
+    const x = panX * scaleRatio - (viewport.width() - content.width())*magicSauce;
+    const y = panY * scaleRatio - (viewport.height() - content.height())*magicSauce;
 
     this.setProperties({
       scale: ratio,
@@ -150,6 +151,7 @@ function startPinch(event) {
     zone.get('panY') - touch0.y
   ];
   const content = zone.get('$content');
+  const viewport = zone.get('$viewport');
 
   function move(e) {
     e.preventDefault();
@@ -161,8 +163,8 @@ function startPinch(event) {
 
     const scaleRatio = ratio / scale0;
     const magicSauce = (scaleRatio - 1) / 2;
-    const newX = (x0 + x) * scaleRatio - content.width() * magicSauce;
-    const newY = (y0 + y) * scaleRatio - content.height() * magicSauce;
+    const newX = (x0 + x) * scaleRatio - (viewport.width() - content.width()) * magicSauce;
+    const newY = (y0 + y) * scaleRatio - (viewport.width() - content.width()) * magicSauce;
 
     zone.setProperties({
       scale: ratio,
