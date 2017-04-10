@@ -240,5 +240,57 @@ test('it pinch-zooms', function (assert) {
 
   assert.equal(this.get("scale"), 1);
   assert.equal(this.get("panX"), 212.5);
-  assert.equal(this.get("panY"), 162.5);
+  assert.equal(this.get("panY"), 137.5);
+});
+
+test('it pinch-zooms on wierd sized content', function (assert) {
+  assert.expect(3);
+
+  this.set("scale", 2);
+  this.set("panX", -100);
+  this.set("panY", 250);
+
+  this.render(hbs`{{#zoom-zone scale=scale panX=panX panY=panY}}
+    <div style='height: 100px; width: 800px; background-color: red'></div>
+  {{/zoom-zone}}`);
+
+  Ember.run(() => {
+    this.$('.zoom-content').trigger(new $.Event('touchstart', {
+      touches: [
+        {
+          pageX: 100,
+          pageY: 100,
+          clientX: 100,
+          clientY: 100
+        },{
+          pageX: 200,
+          pageY: 200,
+          clientX: 200,
+          clientY: 200
+        },
+      ],
+    }));
+
+    this.$('.zoom-content').trigger(new $.Event('touchmove', {
+      touches: [
+        {
+          pageX: 125,
+          pageY: 125,
+          clientX: 125,
+          clientY: 125
+        },{
+          pageX: 175,
+          pageY: 175,
+          clientX: 175,
+          clientY: 175
+        },
+      ],
+    }));
+
+    this.$('.zoom-content').trigger('touchend');
+  });
+
+  assert.equal(this.get("scale"), 1);
+  assert.equal(this.get("panX"), -100);
+  assert.equal(this.get("panY"), 250);
 });
