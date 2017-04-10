@@ -146,24 +146,22 @@ function startPinch(event) {
   const {minScale, maxScale, $content, $viewport, originalWidth, originalHeight, scale, panX, panY} =
     zone.getProperties('minScale', 'maxScale', '$content', '$viewport', 'originalWidth', 'originalHeight',
       'scale', 'panX', 'panY');
+
   const touch0 = normalizeTouches(event);
-  const [scale0, x0, y0] = [
-    scale,
-    panX - touch0.x,
-    panY - touch0.y
-  ];
+  const [x0, y0] = [panX - touch0.x, panY - touch0.y];
+
   const [viewportWidth, viewportHeight] = [$viewport.width(), $viewport.height()];
   const [contentWidth, contentHeight] = [$content.width(), $content.height()];
 
   function move(e) {
     e.preventDefault();
     const {x, y, distance} = normalizeTouches(normalizeEvent(e));
-    let ratio = scale0 * distance / touch0.distance;
+    let ratio = scale * distance / touch0.distance;
 
     if(ratio > maxScale) { ratio = maxScale; }
     else if(ratio < minScale) { ratio = minScale; }
 
-    const scaleRatio = ratio / scale0;
+    const scaleRatio = ratio / scale;
     const magicSauce = (scaleRatio - 1) / 2;
     const newX = (x0 + x) * scaleRatio - (viewportWidth - contentWidth) * magicSauce;
     const newY = (y0 + y) * scaleRatio - (viewportHeight - contentHeight) * magicSauce;
