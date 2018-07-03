@@ -23,6 +23,9 @@
   -ms-user-select: none;
   user-select: none;
 }
+.zoom-viewport > .zoom-content * {
+  -webkit-user-drag: none;
+}
 
 .zoom-viewport > .zoom-content > img {
   max-width: none;

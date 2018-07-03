@@ -132,7 +132,7 @@ test('respects increment', function (assert) {
 
 });
 
-test('it pans with the mouse', function (assert) {
+test('it pans', function (assert) {
   assert.expect(3);
 
   this.render(hbs`{{#zoom-zone scale=scale panX=panX panY=panY}}
@@ -140,50 +140,17 @@ test('it pans with the mouse', function (assert) {
   {{/zoom-zone}}`);
 
   Ember.run(() => {
-    this.$('.zoom-content').trigger(new $.Event('mousedown', {
-      which: 1,
-      pageX: 0,
-      pageY: 0,
+    this.$('.zoom-content').trigger('panstart');
+
+    this.$('.zoom-content').trigger(new $.Event('pan', {
+      originalEvent: {
+        gesture: {
+          deltaX: 100,
+          deltaY: 150,
+          scale: 1
+        }
+      }
     }));
-
-    this.$('.zoom-content').trigger(new $.Event('mousemove', {
-      pageX: 100,
-      pageY: 150,
-    }));
-
-    this.$('.zoom-content').trigger('mouseup');
-  });
-
-  assert.equal(this.get("scale"), 2.0);
-  assert.equal(this.get("panX"), 300);
-  assert.equal(this.get("panY"), 300);
-});
-
-test('it pans with touches', function (assert) {
-  assert.expect(3);
-
-  this.render(hbs`{{#zoom-zone scale=scale panX=panX panY=panY}}
-    <div style='height: 300px; width: 200px; background-color: red'></div>
-  {{/zoom-zone}}`);
-
-  Ember.run(() => {
-    this.$('.zoom-content').trigger(new $.Event('touchstart', {
-      pageX: 0,
-      pageY: 0,
-      touches: [
-        {pageX: 0, pageY: 0}
-      ],
-    }));
-
-    this.$('.zoom-content').trigger(new $.Event('touchmove', {
-      pageX: 100,
-      pageY: 150,
-      touches: [
-        {pageX: 100, pageY: 150}
-      ],
-    }));
-
-    this.$('.zoom-content').trigger('touchend');
   });
 
   assert.equal(this.get("scale"), 2.0);
@@ -203,44 +170,22 @@ test('it pinch-zooms', function (assert) {
   {{/zoom-zone}}`);
 
   Ember.run(() => {
-    this.$('.zoom-content').trigger(new $.Event('touchstart', {
-      touches: [
-        {
-          pageX: 0,
-          pageY: 0,
-          clientX: 0,
-          clientY: 0
-        },{
-          pageX: 100,
-          pageY: 100,
-          clientX: 100,
-          clientY: 100
-        },
-      ],
-    }));
+    this.$('.zoom-content').trigger('pinchstart');
 
-    this.$('.zoom-content').trigger(new $.Event('touchmove', {
-      touches: [
-        {
-          pageX: 50,
-          pageY: 0,
-          clientX: 50,
-          clientY: 0
-        },{
-          pageX: 100,
-          pageY: 50,
-          clientX: 100,
-          clientY: 50
-        },
-      ],
+    this.$('.zoom-content').trigger(new $.Event('pinch', {
+      originalEvent: {
+        gesture: {
+          deltaX: 0,
+          deltaY: 0,
+          scale: 0.5
+        }
+      }
     }));
-
-    this.$('.zoom-content').trigger('touchend');
   });
 
   assert.equal(this.get("scale"), 1);
-  assert.equal(this.get("panX"), 212.5);
-  assert.equal(this.get("panY"), 137.5);
+  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panY"), 150);
 });
 
 test('it pinch-zooms on wierd sized content', function (assert) {
@@ -255,39 +200,17 @@ test('it pinch-zooms on wierd sized content', function (assert) {
   {{/zoom-zone}}`);
 
   Ember.run(() => {
-    this.$('.zoom-content').trigger(new $.Event('touchstart', {
-      touches: [
-        {
-          pageX: 100,
-          pageY: 100,
-          clientX: 100,
-          clientY: 100
-        },{
-          pageX: 200,
-          pageY: 200,
-          clientX: 200,
-          clientY: 200
-        },
-      ],
-    }));
+    this.$('.zoom-content').trigger('pinchstart');
 
-    this.$('.zoom-content').trigger(new $.Event('touchmove', {
-      touches: [
-        {
-          pageX: 125,
-          pageY: 125,
-          clientX: 125,
-          clientY: 125
-        },{
-          pageX: 175,
-          pageY: 175,
-          clientX: 175,
-          clientY: 175
-        },
-      ],
+    this.$('.zoom-content').trigger(new $.Event('pinch', {
+      originalEvent: {
+        gesture: {
+          deltaX: 0,
+          deltaY: 0,
+          scale: 0.5
+        }
+      }
     }));
-
-    this.$('.zoom-content').trigger('touchend');
   });
 
   assert.equal(this.get("scale"), 1);

@@ -1,12 +1,13 @@
 import Ember from 'ember';
+import RecognizerMixin from 'ember-gestures/mixins/recognizers';
 
 const {
   Component,
-  run,
-  $
+  run
 } = Ember;
 
-export default Component.extend({
+export default Component.extend(RecognizerMixin, {
+  recognizers: 'pinch pan vertical-pan',
   headerTemplate: null,
   footerTemplate: null,
   activeViewport: true,
@@ -22,15 +23,67 @@ export default Component.extend({
   panY: 0,
   centerOnFit: true,
   delay: 250,
+  panStartX: 0,
+  panStartY: 0,
+  scaleStart: undefined,
+
+  panStart() {
+    this.gesturedStart();
+  },
+
+  pinchStart() {
+    this.gesturedStart();
+  },
+
+  pan(e) {
+    this.gestured(e);
+  },
+
+  pinch(e) {
+    this.gestured(e);
+  },
+  
+  pinchMove(e) {
+    this.gestured(e);
+  },
+
+  gesturedStart() {
+    this.setProperties({
+      panStartX: this.get('panX'),
+      panStartY: this.get('panY'),
+      scaleStart: this.get('scale')
+    });
+  },
+
+  gestured(e){
+    let {panStartX, panStartY, scaleStart, $viewport, $content, minScale, maxScale} =
+      this.getProperties('panStartX', 'panStartY', 'scaleStart', '$viewport', '$content', 'minScale', 'maxScale');
+
+    let {deltaX, deltaY, scale} = e.originalEvent.gesture;
+
+    const [viewportWidth, viewportHeight] = [$viewport.width(), $viewport.height()];
+    const [contentWidth, contentHeight] = [$content.width(), $content.height()];
+
+    scale *= scaleStart;
+
+    let ratio = Math.max(minScale, Math.min(scale, maxScale));
+
+    const scaleRatio = ratio / scaleStart;
+    const magicSauce = (scaleRatio - 1) / 2;
+    const newX = (panStartX + deltaX) * scaleRatio - (viewportWidth - contentWidth) * magicSauce;
+    const newY = (panStartY + deltaY) * scaleRatio - (viewportHeight - contentHeight) * magicSauce;
+
+    this.setProperties({
+      panX: newX,
+      panY: newY,
+      scale: ratio
+    });
+  },
 
   didInsertElement() {
     const viewport = this.$('.zoom-viewport');
     const content = viewport.children('.zoom-content');
     const scale = this.get('scale');
-    const start = (e) => {
-      if(Ember.isPresent(normalizeEvent(e).touches) || e.which === 1) { startPinch(e); }
-      if(e.type === 'mousedown') { e.preventDefault(); }
-    };
 
     this._super(...arguments);
 
@@ -40,27 +93,11 @@ export default Component.extend({
       this.set('originalWidth', content.width());
       this.set('originalHeight', content.height());
 
-      viewport.on('touchstart mousedown', {zone: this}, (e) => {
-        if(this.get('activeViewport')) { start(e); }
-      });
-
-      content.on('touchstart mousedown', {zone: this}, start);
-
       if(scale) { this.zoomTo(scale); }
       else { this.zoomFit(); }
 
       this.didRender();
     });
-  },
-
-  willDestroyElement() {
-    const viewport = this.get('$viewport');
-    const content = this.get('$content');
-
-    viewport.off();
-    content.off();
-
-    this._super(...arguments);
   },
 
   didRender() {
@@ -140,87 +177,3 @@ export default Component.extend({
     zoomFit() { this.zoomFit(); }
   }
 });
-
-function startPinch(event) {
-  const {zone} = event.data;
-  const {minScale, maxScale, $content, $viewport, originalWidth, originalHeight, scale, panX, panY} =
-    zone.getProperties('minScale', 'maxScale', '$content', '$viewport', 'originalWidth', 'originalHeight',
-      'scale', 'panX', 'panY');
-
-  const touch0 = normalizeTouches(event);
-  const [x0, y0] = [panX - touch0.x, panY - touch0.y];
-
-  const [viewportWidth, viewportHeight] = [$viewport.width(), $viewport.height()];
-  const [contentWidth, contentHeight] = [$content.width(), $content.height()];
-
-  function move(e) {
-    e.preventDefault();
-    const {x, y, distance} = normalizeTouches(normalizeEvent(e));
-    let ratio = scale * distance / touch0.distance;
-
-    if(ratio > maxScale) { ratio = maxScale; }
-    else if(ratio < minScale) { ratio = minScale; }
-
-    const scaleRatio = ratio / scale;
-    const magicSauce = (scaleRatio - 1) / 2;
-    const newX = (x0 + x) * scaleRatio - (viewportWidth - contentWidth) * magicSauce;
-    const newY = (y0 + y) * scaleRatio - (viewportHeight - contentHeight) * magicSauce;
-
-    zone.setProperties({
-      scale: ratio,
-      panX: newX,
-      panY: newY,
-      width: originalWidth * ratio,
-      height: originalHeight * ratio,
-    });
-  }
-
-  $(document).off('mousemove.zoom-zone touchmove.zoom-zone');
-  $(document).one('mouseup touchend', () =>
-    $(document).off('mousemove.zoom-zone touchmove.zoom-zone')
-  );
-  $(document).on('mousemove.zoom-zone touchmove.zoom-zone', move);
-}
-
-function normalizeEvent(event) {
-  if(event.originalEvent) {
-    const touches = Array.prototype.slice.call(event.originalEvent.touches || []);
-    event.touches = touches;
-    if(touches[0]) {
-      event.pageX = touches[0].pageX;
-      event.pageY = touches[0].pageY;
-    } else {
-      event.pageX = event.originalEvent.pageX;
-      event.pageY = event.originalEvent.pageY;
-    }
-  }
-  return event;
-}
-
-function normalizeTouches(event) {
-  const {touches} = event;
-  if((touches || []).length < 2) {
-    return {
-      x: event.pageX,
-      y: event.pageY,
-      distance: 1
-    };
-  }
-  const [first, second] = touches.slice(0, 2);
-
-  return {
-    x: (first.pageX + second.pageX) / 2,
-    y: (first.pageY + second.pageY) / 2,
-    distance: distance(
-      [first.clientX, first.clientY],
-      [second.clientX, second.clientY]
-    ),
-  };
-}
-
-function distance(p0, p1) {
-  return Math.sqrt(
-     Math.pow(Math.abs(p0[0] - p1[0]), 2) +
-     Math.pow(Math.abs(p0[1] - p1[1]), 2)
-  );
-}
