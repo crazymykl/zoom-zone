@@ -217,3 +217,19 @@ test('it pinch-zooms on wierd sized content', function (assert) {
   assert.equal(this.get("panX"), -100);
   assert.equal(this.get("panY"), 250);
 });
+
+test('it rotates via button', function (assert) {
+  assert.expect(3);
+
+  this.set('rotation', 0);
+
+  this.render(hbs`{{#zoom-zone rotation=rotation scale=scale panX=panX panY=panY headerTemplate='components/zoom-zone-header'}}
+    <div style='height: 300px; width: 200px; background-color: red'></div>
+  {{/zoom-zone}}`);
+
+  Ember.run(() => this.$('.rotate-clockwise').click());
+
+  assert.equal(this.get("panX"), 200);
+  assert.equal(this.get("panY"), 150);
+  assert.equal(this.get("rotation"), 5);
+});
