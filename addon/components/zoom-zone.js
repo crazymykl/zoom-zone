@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
+import Rematrix from 'rematrix';
 
 const {
   Component,
@@ -7,7 +8,7 @@ const {
 } = Ember;
 
 export default Component.extend(RecognizerMixin, {
-  recognizers: 'pinch pan vertical-pan',
+  recognizers: 'pinch vertical-pan pan',
   headerTemplate: null,
   footerTemplate: null,
   activeViewport: true,
@@ -25,7 +26,10 @@ export default Component.extend(RecognizerMixin, {
   delay: 250,
   panStartX: 0,
   panStartY: 0,
+  rotation: 0,
   scaleStart: undefined,
+  contentCenterX: 0,
+  contentCenterY: 0,
 
   panStart() {
     this.gesturedStart();
@@ -76,6 +80,8 @@ export default Component.extend(RecognizerMixin, {
     this.setProperties({
       panX: newX,
       panY: newY,
+      width: this.get('originalWidth') * ratio,
+      height: this.get('originalHeight') * ratio,
       scale: ratio
     });
   },
@@ -101,8 +107,16 @@ export default Component.extend(RecognizerMixin, {
   },
 
   didRender() {
-    const {$content, scale, panX, panY} = this.getProperties('$content', 'scale', 'panX', 'panY');
-    const matrix = `matrix(${scale}, 0, 0, ${scale}, ${panX}, ${panY})`;
+    const {$content, scale, panX, panY, rotation} = this.getProperties('$content', 'scale', 'panX', 'panY', 'rotation');
+    let translation = Rematrix.translate(panX, panY);
+    let scalar = Rematrix.scale(scale);
+    let rotate = Rematrix.rotate(rotation);
+
+    let product = [translation, scalar, rotate].reduce(Rematrix.multiply);
+
+    product = [product[0], product[1], product[4], product[5], product[12], product[13]];
+
+    const matrix = `matrix(${product.join(', ')})`;
     if($content) { $content.css({transform: matrix}); }
   },
 
@@ -170,10 +184,41 @@ export default Component.extend(RecognizerMixin, {
     this.zoomTo(this.get('scale') + delta);
   },
 
+  rotate(angle) {
+    const {panX, panY, rotation, $viewport, $content} =
+      this.getProperties('panX', 'panY', 'rotation','$viewport', '$content');
+
+    let newRotation = (rotation + angle) % 360;
+
+    if ( newRotation < 0 ){ newRotation += 360; }
+
+    let relativeX = $content.width() / 2;
+    let relativeY = $content.height() / 2;
+
+    let centerX = panX + relativeX;
+    let centerY = panY + relativeY;
+
+    let viewCenterX = $viewport.width() / 2;
+    let viewCenterY = $viewport.height() / 2;
+
+    let radians = (Math.PI / 180) * (360 - angle);
+    let cos = Math.cos(radians);
+    let sin = Math.sin(radians);
+    let newX = (cos * (centerX - viewCenterX)) + (sin * (centerY - viewCenterY)) + viewCenterX;
+    let newY = (cos * (centerY - viewCenterY)) - (sin * (centerX - viewCenterX)) + viewCenterY;
+
+    this.setProperties({
+      rotation: newRotation,
+      panX: newX - relativeX,
+      panY: newY - relativeY
+    });
+  },
+
   actions: {
     zoomTo(scale=1) { this.zoomTo(scale); },
     zoomIn() { this.zoomBy(this.get('increment')); },
     zoomOut() { this.zoomBy(-this.get('increment')); },
-    zoomFit() { this.zoomFit(); }
+    zoomFit() { this.zoomFit(); },
+    rotate(rotation=90){ this.rotate(rotation); },
   }
 });
