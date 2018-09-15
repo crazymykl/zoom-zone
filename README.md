@@ -2,7 +2,8 @@
 
 An Ember component providing a region which can be panned and zoomed.
 
-## Installation
+Installation
+------------------------------------------------------------------------------
 
 * `ember install zoom-zone`
 
@@ -49,3 +50,8 @@ These actions are available:
 ---
 
 For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+
+License
+------------------------------------------------------------------------------
+
+This project is licensed under the [MIT License](LICENSE.md).
