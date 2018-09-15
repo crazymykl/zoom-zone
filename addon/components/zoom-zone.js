@@ -1,11 +1,7 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { run } from '@ember/runloop';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
 import Rematrix from 'rematrix';
-
-const {
-  Component,
-  run
-} = Ember;
 
 export default Component.extend(RecognizerMixin, {
   recognizers: 'pinch vertical-pan pan',

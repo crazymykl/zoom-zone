@@ -1,3 +1,4 @@
+import { run } from '@ember/runloop';
 import {
   moduleForComponent,
   test
@@ -43,7 +44,7 @@ test('it zooms in via button', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.zoom-in').click());
+  run(() => this.$('.zoom-in').click());
 
   assert.equal(this.get("scale"), 2.25);
   assert.equal(this.get("panX"), 200);
@@ -57,7 +58,7 @@ test('it zooms out via button', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.zoom-out').click());
+  run(() => this.$('.zoom-out').click());
 
   assert.equal(this.get("scale"), 1.75);
   assert.equal(this.get("panX"), 200);
@@ -75,7 +76,7 @@ test('it zooms to fit via button', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.zoom-fit').click());
+  run(() => this.$('.zoom-fit').click());
 
   assert.equal(this.get("scale"), 2.0);
   assert.equal(this.get("panX"), 200);
@@ -92,7 +93,7 @@ test('respects minimum scale', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.zoom-out').click());
+  run(() => this.$('.zoom-out').click());
 
   assert.equal(this.get("scale"), 5.0);
 });
@@ -107,7 +108,7 @@ test('respects maximum scale', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.zoom-in').click());
+  run(() => this.$('.zoom-in').click());
 
   assert.equal(this.get("scale"), 5.0);
 });
@@ -122,12 +123,12 @@ test('respects increment', function (assert) {
   {{/zoom-zone}}`);
 
   this.set("increment", 1.0);
-  Ember.run(() => this.$('.zoom-in').click());
+  run(() => this.$('.zoom-in').click());
 
   assert.equal(this.get("scale"), 2.0);
 
   this.set("increment", 0.5);
-  Ember.run(() => this.$('.zoom-out').click());
+  run(() => this.$('.zoom-out').click());
   assert.equal(this.get("scale"), 1.5);
 
 });
@@ -139,7 +140,7 @@ test('it pans', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => {
+  run(() => {
     this.$('.zoom-content').trigger('panstart');
 
     this.$('.zoom-content').trigger(new $.Event('pan', {
@@ -169,7 +170,7 @@ test('it pinch-zooms', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => {
+  run(() => {
     this.$('.zoom-content').trigger('pinchstart');
 
     this.$('.zoom-content').trigger(new $.Event('pinch', {
@@ -199,7 +200,7 @@ test('it pinch-zooms on wierd sized content', function (assert) {
     <div style='height: 100px; width: 800px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => {
+  run(() => {
     this.$('.zoom-content').trigger('pinchstart');
 
     this.$('.zoom-content').trigger(new $.Event('pinch', {
@@ -227,7 +228,7 @@ test('it rotates via button', function (assert) {
     <div style='height: 300px; width: 200px; background-color: red'></div>
   {{/zoom-zone}}`);
 
-  Ember.run(() => this.$('.rotate-clockwise').click());
+  run(() => this.$('.rotate-clockwise').click());
 
   assert.equal(this.get("panX"), 200);
   assert.equal(this.get("panY"), 150);
