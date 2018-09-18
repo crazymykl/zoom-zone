@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import { run } from '@ember/runloop';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
 import * as Rematrix from 'rematrix';
+import { normalizeEvent } from 'ember-jquery-legacy';
 
 export default Component.extend(RecognizerMixin, {
   recognizers: 'pinch vertical-pan pan',
@@ -56,8 +57,9 @@ export default Component.extend(RecognizerMixin, {
   },
 
   gestured(e){
-    let {panStartX, panStartY, scaleStart, $viewport, $content, minScale, maxScale} = this;
-    let {deltaX, deltaY, scale} = e.originalEvent.gesture;
+	let {panStartX, panStartY, scaleStart, $viewport, $content, minScale, maxScale} = this;
+	e = normalizeEvent(e);
+    let {deltaX, deltaY, scale} = e.gesture;
 
     const [viewportWidth, viewportHeight] = [$viewport.width(), $viewport.height()];
     const [contentWidth, contentHeight] = [$content.width(), $content.height()];
