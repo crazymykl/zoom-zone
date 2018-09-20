@@ -1,10 +1,10 @@
-<div class='zoom-container'>
+<div class="zoom-container">
   {{#if headerTemplate}}
     {{partial headerTemplate}}
   {{/if}}
 
-  <div class='zoom-viewport {{if activeViewport "active"}}'>
-    <div class='zoom-content'>
+  <div class="zoom-viewport {{if activeViewport "active"}}">
+    <div class="zoom-content">
       {{yield this}}
     </div>
   </div>

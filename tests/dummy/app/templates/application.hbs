@@ -1,5 +1,5 @@
-{{#zoom-zone headerTemplate='components/zoom-zone-header' as |zz| }}
-  <img src='http://placehold.it/300x200' width='300' height='200'>
-  {{#link-to 'foo'}}<span class='splorch' id='foo'></span>{{/link-to}}
+{{#zoom-zone headerTemplate="components/zoom-zone-header" as |zz| }}
+  <img src="http://placehold.it/300x200" width="300" height="200">
+  {{#link-to "foo"}}<span class="splorch" id="foo"></span>{{/link-to}}
   <button {{action "zoomInjected" zz 1}}>Zoom To 1</button>
 {{/zoom-zone}}

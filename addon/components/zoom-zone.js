@@ -1,11 +1,8 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { run } from '@ember/runloop';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
-import Rematrix from 'rematrix';
-
-const {
-  Component,
-  run
-} = Ember;
+import * as Rematrix from 'rematrix';
+import { normalizeEvent } from 'ember-jquery-legacy';
 
 export default Component.extend(RecognizerMixin, {
   recognizers: 'pinch vertical-pan pan',
@@ -60,10 +57,9 @@ export default Component.extend(RecognizerMixin, {
   },
 
   gestured(e){
-    let {panStartX, panStartY, scaleStart, $viewport, $content, minScale, maxScale} =
-      this.getProperties('panStartX', 'panStartY', 'scaleStart', '$viewport', '$content', 'minScale', 'maxScale');
-
-    let {deltaX, deltaY, scale} = e.originalEvent.gesture;
+	let {panStartX, panStartY, scaleStart, $viewport, $content, minScale, maxScale} = this;
+	e = normalizeEvent(e);
+    let {deltaX, deltaY, scale} = e.gesture;
 
     const [viewportWidth, viewportHeight] = [$viewport.width(), $viewport.height()];
     const [contentWidth, contentHeight] = [$content.width(), $content.height()];
@@ -107,7 +103,7 @@ export default Component.extend(RecognizerMixin, {
   },
 
   didRender() {
-    const {$content, scale, panX, panY, rotation} = this.getProperties('$content', 'scale', 'panX', 'panY', 'rotation');
+    const {$content, scale, panX, panY, rotation} = this;
     let translation = Rematrix.translate(panX, panY);
     let scalar = Rematrix.scale(scale);
     let rotate = Rematrix.rotate(rotation);
@@ -185,8 +181,7 @@ export default Component.extend(RecognizerMixin, {
   },
 
   rotate(angle) {
-    const {panX, panY, rotation, $viewport, $content} =
-      this.getProperties('panX', 'panY', 'rotation','$viewport', '$content');
+    const {panX, panY, rotation, $viewport, $content} = this;
 
     let newRotation = (rotation + angle) % 360;
 
