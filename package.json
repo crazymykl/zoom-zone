@@ -1,6 +1,6 @@
 {
   "name": "zoom-zone",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "An ember-cli addon for handling zoomable areas on a page.",
   "keywords": [
     "ember-addon",
@@ -25,10 +25,10 @@
   "dependencies": {
     "ember-auto-import": "^1.2.13",
     "ember-cli-babel": "^6.16.0",
-	  "rematrix": "~0.3.0",
-	  "ember-jquery-legacy": "^1.0.0",
-	  "ember-gestures": "^1.1.0",
-    "ember-hammertime": "^1.5.0"
+    "ember-gestures": "^1.1.0",
+    "ember-hammertime": "^1.5.0",
+    "ember-jquery-legacy": "^1.0.0",
+    "rematrix": "~0.3.0"
   },
   "devDependencies": {
     "@ember/jquery": "^0.5.2",
@@ -59,7 +59,7 @@
     "qunit-dom": "^0.8.0"
   },
   "engines": {
-    "node": "6.* || 8.* || >= 10.*"
+    "node": "8.* || >= 10.*"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
