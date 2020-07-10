@@ -43,7 +43,7 @@ export default Component.extend(RecognizerMixin, {
   pinch(e) {
     this.gestured(e);
   },
-  
+
   pinchMove(e) {
     this.gestured(e);
   },
@@ -67,6 +67,10 @@ export default Component.extend(RecognizerMixin, {
     scale *= scaleStart;
 
     let ratio = Math.max(minScale, Math.min(scale, maxScale));
+
+    if (e.type == "pan") {
+      ratio = this.scale; // pan should never change the scale
+    }
 
     const scaleRatio = ratio / scaleStart;
     const magicSauce = (scaleRatio - 1) / 2;
